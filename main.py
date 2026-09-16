@@ -1,4 +1,5 @@
 import os
+import io
 import sys
 import pygame
 from docx import Document
@@ -41,10 +42,18 @@ CURSOR_COLOR = (0, 180, 0)  # Зеленый курсор
 
 # --- ИНИЦИАЛИЗАЦИЯ ШРИФТА ---
 try:
-    font = pygame.font.Font("minecraft.ttf", 15)
-    page_num_font = pygame.font.Font("minecraft.ttf", 16)  
-except IOError:
-    print("Внимание: Файл 'minecraft.ttf' не найден. Используется стандартный системный шрифт.")
+    # 1. Загружаем основной шрифт для текста книги (размер 15)
+    with open(resource_path("minecraft.ttf"), "rb") as f:
+        font_data_main = io.BytesIO(f.read())
+    font = pygame.font.Font(font_data_main, 16)
+    
+    # 2. Создаем ПОЛНОСТЬЮ ОТДЕЛЬНЫЙ поток памяти для шрифта кнопок (размер 11)
+    with open(resource_path("minecraft.ttf"), "rb") as f:
+        font_data_btn = io.BytesIO(f.read())
+    page_num_font = pygame.font.Font(font_data_btn, 16)  
+    
+except Exception as e:
+    print(f"Ошибка загрузки шрифта: {e}. Используется стандартный системный шрифт.")
     font = pygame.font.SysFont("Courier New", 15, bold=True)
     page_num_font = pygame.font.SysFont("Courier New", 13, bold=True)
 
